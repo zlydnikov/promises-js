@@ -3,9 +3,6 @@ function rentCar(choosenCar) {
     let promise = new Promise(function(resolve, reject) {
         setTimeout(function() {
             Math.random() > .5 ? resolve({}) : reject('В аренде отказано: машина занята');
-            resolve();
-            reject();
-            resolve();
         }, 1000);
     });
     return promise;
