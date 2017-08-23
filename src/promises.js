@@ -1,36 +1,45 @@
-function rentCar(choosenCar) {
-    console.log('Проверка машины');
-    let promise = new Promise(function(resolve, reject) {
-        setTimeout(function() {
-            Math.random() > .5 ? resolve({}) : reject('В аренде отказано: машина занята');
-        }, 1000);
-    });
-    return promise;
+function Promise() {
+    this.callbacks = [];
 }
 
-function getCar(car) {
-    console.info('Машина выбрана');
-    return new Promise(function(resolve, reject){
-        setTimeout(() => resolve(car), 1000);
-    });
-}
+Promise.prototype.then = function (func, context) {
+    var p;
+    if (this.isdone) {
+        p.func.apply(context, this.result);
+    } else {
+        p = new Promise();
+        this.callbacks.push(function () {
+            var res = func.apply(context, arguments);
+            if (res && typeof res.then === 'function') {
+                res.then(p.done, p);
+            }
+        });
+    }
+    return p;
+};
 
-function applyDocuments(documents) {
-    console.log('Получаем документы...');
-    return Promise.resolve(documents);
-}
+Promise.prototype.done = function () {
+    this.result = arguments;
+    this.isdone = true;
+    for (var i = 0; i < this.callbacks.length; i++) {
+        this.callbacks[i].apply(null, arguments);
+    }
+    this.callbacks = [];
+};
 
-function makePayment(card) {
-    console.log('Проводим оплату...');
-}
 
-function bookCar(car) {
-    console.log('Поздравляем! Машина аредована!');
-}
 
-rentCar({})
-    .then(getCar)
-    .then(applyDocuments)
-    .then(makePayment)
-    .then(bookCar)
-    .catch(error => console.error(error));
+function promiseTest() {
+    var p = new Promise();
+    setTimeout(function() {
+        p.done(null, 'Первый!');
+    }, 1000);
+    return p;
+}
+var promiseVar = promiseTest();
+promiseVar.then(function(error, data){
+    console.log(data);
+});
+promiseVar.then(function(error, data){
+    console.log('Второй!');
+});
